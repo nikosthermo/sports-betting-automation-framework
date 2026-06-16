@@ -3,7 +3,9 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 
+import allure
 import pytest
+from allure_commons.types import AttachmentType
 from selenium.common import WebDriverException
 
 from sports_betting.api.clients.betting_api_client import BettingApiClient
@@ -78,5 +80,11 @@ def pytest_runtest_makereport(item, call):
     screenshot_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     screenshot_path = screenshot_dir / f"{item.name}-{timestamp}.png"
-    driver.save_screenshot(str(screenshot_path))
+    screenshot = driver.get_screenshot_as_png()
+    screenshot_path.write_bytes(screenshot)
+    allure.attach(
+        screenshot,
+        name="failure-screenshot",
+        attachment_type=AttachmentType.PNG,
+    )
     report.sections.append(("screenshot", str(screenshot_path)))

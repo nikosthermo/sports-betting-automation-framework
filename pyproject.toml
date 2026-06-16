@@ -17,6 +17,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+  "allure-pytest>=2.13",
   "detect-secrets>=1.5",
   "pre-commit>=4.0",
   "ruff>=0.8",

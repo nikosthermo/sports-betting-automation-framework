@@ -80,7 +80,7 @@ python -m pytest
 Run API tests only:
 
 ```bash
-python -m pytest tests/system_tests/single_bet_placement -m api
+make test-api
 ```
 
 Run UI E2E tests only:
@@ -90,6 +90,30 @@ make test-e2e
 ```
 
 If `SPORTY_BASE_URL` or `SPORTY_USER_ID` is not set, authenticated tests skip with a clear message.
+
+## Allure Reporting
+
+Test commands write Allure result files to `allure-results/`.
+
+Generate API test results:
+
+```bash
+make test-api
+```
+
+Generate E2E test results:
+
+```bash
+make test-e2e
+```
+
+Open the interactive report:
+
+```bash
+make report-open
+```
+
+`allure-pytest` is installed with the development dependencies. Viewing the HTML report also requires the Allure command-line tool to be installed on your machine.
 
 ## Quality Gates
 
@@ -111,7 +135,7 @@ This runs:
 - Ruff formatting checks.
 - Google-style docstring convention checks through Ruff's pydocstyle rules.
 - Credential leak scanning with `detect-secrets`.
-- API Pytest checks.
+- API Pytest checks with Allure result generation.
 
 Install commit-time hooks:
 
@@ -138,6 +162,7 @@ make test-e2e
 - `pytest` for concise fixtures, markers, and readable assertions.
 - `requests` for direct API validation.
 - `selenium` for required browser automation against Chrome.
+- `allure-pytest` for structured test reporting and UI failure attachments.
 - `pyproject.toml` for modern Python packaging and editable installs.
 - `ruff` for linting, import sorting, formatting checks, and Google-style docstring enforcement.
 - `detect-secrets` for credential leak prevention.

@@ -1,6 +1,6 @@
 PYTHON ?= python3
 
-.PHONY: install install-dev lint format-check credential-scan test test-api test-e2e quality
+.PHONY: install install-dev lint format-check credential-scan test test-api test-e2e report-open quality
 
 install:
 	$(PYTHON) -m pip install -e .
@@ -19,12 +19,15 @@ credential-scan:
 		--exclude-files '(^\.idea/|^\.pytest_cache/|^\.ruff_cache/|^\.venv/|\.png)'
 
 test:
-	$(PYTHON) -m pytest
+	$(PYTHON) -m pytest --alluredir=allure-results
 
 test-api:
-	$(PYTHON) -m pytest tests/system_tests -m api
+	$(PYTHON) -m pytest tests/system_tests -m api --alluredir=allure-results
 
 test-e2e:
-	$(PYTHON) -m pytest tests/e2e_tests -m e2e
+	$(PYTHON) -m pytest tests/e2e_tests -m e2e --alluredir=allure-results
+
+report-open:
+	allure serve allure-results
 
 quality: lint format-check credential-scan test-api
