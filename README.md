@@ -1,5 +1,7 @@
 # Sports Betting Automation Framework
 
+[![QA Automation CI](https://github.com/nikosthermo/sports-betting-automation-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/nikosthermo/sports-betting-automation-framework/actions/workflows/ci.yml)
+
 Scoped QA submission for Sporty's Single Bet Placement assignment.
 
 The repository combines manual QA deliverables with a small Python automation framework using Selenium WebDriver, `requests`, Chrome, and Pytest.
@@ -13,6 +15,41 @@ The repository combines manual QA deliverables with a small Python automation fr
 - `tests/system_tests/single_bet_placement` - direct API/business-rule tests for the feature.
 - `tests/e2e_tests/single_bet_placement` - browser E2E tests for the feature.
 
+Hosted Allure report:
+
+```text
+https://nikosthermo.github.io/sports-betting-automation-framework/
+```
+
+## Repository Structure
+
+```text
+sports-betting-automation-framework/
+├── .github/workflows/ci.yml
+├── docs/
+│   ├── test-plan.md
+│   ├── execution-results-and-bugs.md
+│   └── strategy-and-recommendations.md
+├── evidence/screenshots/
+│   └── bug-001-receipt-match-order.png
+├── src/sports_betting/
+│   ├── config.py
+│   ├── api/
+│   │   ├── clients/
+│   │   └── services/
+│   └── ui/
+│       ├── pages/
+│       └── services/
+├── tests/
+│   ├── conftest.py
+│   ├── system_tests/single_bet_placement/
+│   └── e2e_tests/single_bet_placement/
+├── AGENTS.md
+├── Makefile
+├── pyproject.toml
+└── pytest.ini
+```
+
 ## Architecture
 
 The framework separates transport, business workflows, page objects, and tests:
@@ -24,6 +61,18 @@ The framework separates transport, business workflows, page objects, and tests:
 - Tests stay short and scenario-focused.
 
 This keeps the assignment small while demonstrating how the framework could scale without turning every test into Selenium plumbing.
+
+## Test Organization
+
+The test tree is organized by test layer first, then feature domain:
+
+- `tests/system_tests/single_bet_placement` contains API/business-rule checks that validate server-side behavior directly.
+- `tests/e2e_tests/single_bet_placement` contains browser-level user journeys that validate the integrated UI flow.
+
+Pytest markers preserve technical filtering:
+
+- `@pytest.mark.api` for API/system tests.
+- `@pytest.mark.e2e` for browser E2E tests.
 
 ## Requirements
 
@@ -190,6 +239,19 @@ The browser E2E is intentionally kept outside `make quality` because it exercise
 ```bash
 make test-e2e
 ```
+
+## Known E2E Product Defect
+
+The current UI E2E test is expected to fail against the live application because the success receipt reverses match order.
+
+Example:
+
+```text
+Expected: Manchester Utd vs Chelsea
+Actual:   Chelsea vs Manchester Utd
+```
+
+This is documented in `docs/execution-results-and-bugs.md` as `BUG-001`, with curated evidence in `evidence/screenshots/bug-001-receipt-match-order.png`.
 
 ## GitHub Actions CI
 
