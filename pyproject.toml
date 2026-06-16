@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sports-betting-automation-framework"
+version = "0.1.0"
+description = "Scoped QA automation framework for Sporty single bet placement assignment."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "pytest>=8.2,<9",
+  "requests>=2.32",
+  "selenium>=4.21",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff>=0.5",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "PL"]
+ignore = ["PLR2004"]

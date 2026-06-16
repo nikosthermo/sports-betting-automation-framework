@@ -206,6 +206,11 @@ tempCodeRunnerFile.py
 # Ruff stuff:
 .ruff_cache/
 
+# Generated evidence
+evidence/screenshots/*
+!evidence/screenshots/.gitkeep
+!evidence/screenshots/bug-*.png
+
 # PyPI configuration file
 .pypirc
 
