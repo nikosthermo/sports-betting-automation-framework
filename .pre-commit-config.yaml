@@ -17,4 +17,5 @@ repos:
         name: detect secrets
         entry: detect-secrets-hook --baseline .secrets.baseline
         language: system
+        exclude: ^(allure-results|allure-report)/
         types: [text]

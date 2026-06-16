@@ -16,7 +16,7 @@ format-check:
 
 credential-scan:
 	detect-secrets scan --baseline .secrets.baseline --all-files \
-		--exclude-files '(^\.idea/|^\.pytest_cache/|^\.ruff_cache/|^\.venv/|\.png)'
+		--exclude-files '(^\.idea/|^\.pytest_cache/|^\.ruff_cache/|^\.venv/|^allure-results/|^allure-report/|\.png)'
 
 test:
 	$(PYTHON) -m pytest --alluredir=allure-results

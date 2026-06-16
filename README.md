@@ -95,6 +95,40 @@ If `SPORTY_BASE_URL` or `SPORTY_USER_ID` is not set, authenticated tests skip wi
 
 Test commands write Allure result files to `allure-results/`.
 
+Install the Allure command-line tool locally to view HTML reports.
+
+macOS:
+
+```bash
+brew install allure
+```
+
+Linux:
+
+```bash
+sudo apt-add-repository ppa:qameta/allure
+sudo apt update
+sudo apt install allure
+```
+
+Windows:
+
+```powershell
+scoop install allure
+```
+
+Cross-platform npm alternative:
+
+```bash
+npm install -g allure-commandline
+```
+
+Verify the installation:
+
+```bash
+allure --version
+```
+
 Generate API test results:
 
 ```bash
@@ -113,7 +147,7 @@ Open the interactive report:
 make report-open
 ```
 
-`allure-pytest` is installed with the development dependencies. Viewing the HTML report also requires the Allure command-line tool to be installed on your machine.
+`allure-pytest` is installed with the development dependencies. The Allure command-line tool is only needed for opening or generating the HTML report locally.
 
 ## Quality Gates
 
