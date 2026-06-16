@@ -16,6 +16,7 @@ class BettingUiService:
         self.bet_slip_page = BetSlipPage(driver, timeout)
 
     def place_home_bet(self, app_url: str, match: dict, stake: Decimal) -> dict[str, str]:
+        """Place a HOME bet through the browser and return expected and actual receipt values."""
         self.matches_page.open(app_url)
         self.matches_page.select_home_outcome(match["id"])
         self.bet_slip_page.enter_stake(f"{stake:.2f}")

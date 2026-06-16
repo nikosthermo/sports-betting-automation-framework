@@ -1,2 +1,1 @@
 """Selenium UI helpers."""
-

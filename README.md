@@ -49,6 +49,17 @@ export SPORTY_BASE_URL="<assignment-app-url>"
 export SPORTY_USER_ID="<assignment-user-id>"
 ```
 
+For local demos, you can also create an uncommitted `.env` file:
+
+```bash
+SPORTY_BASE_URL=<assignment-app-url>
+SPORTY_USER_ID=<assignment-user-id>
+SPORTY_HEADLESS=true
+SPORTY_TIMEOUT_SECONDS=12
+```
+
+The framework loads `.env` automatically when present, but exported environment variables take priority.
+
 Optional variables:
 
 ```bash
@@ -75,10 +86,52 @@ python -m pytest tests/system_tests/single_bet_placement -m api
 Run UI E2E tests only:
 
 ```bash
-python -m pytest tests/e2e_tests/single_bet_placement -m e2e
+make test-e2e
 ```
 
 If `SPORTY_BASE_URL` or `SPORTY_USER_ID` is not set, authenticated tests skip with a clear message.
+
+## Quality Gates
+
+Install the development toolchain:
+
+```bash
+make install-dev
+```
+
+Run all local quality gates:
+
+```bash
+make quality
+```
+
+This runs:
+
+- Ruff linting, including import sorting checks.
+- Ruff formatting checks.
+- Google-style docstring convention checks through Ruff's pydocstyle rules.
+- Credential leak scanning with `detect-secrets`.
+- API Pytest checks.
+
+Install commit-time hooks:
+
+```bash
+pre-commit install
+```
+
+Run hooks against the full repository:
+
+```bash
+pre-commit run --all-files
+```
+
+The secret scanner uses `.secrets.baseline`. If a new intentional false positive appears, audit it before updating the baseline.
+
+The browser E2E is intentionally kept outside `make quality` because it exercises the live application and currently exposes the documented receipt match-order defect. Run it explicitly with:
+
+```bash
+make test-e2e
+```
 
 ## Tooling Choices
 
@@ -86,7 +139,9 @@ If `SPORTY_BASE_URL` or `SPORTY_USER_ID` is not set, authenticated tests skip wi
 - `requests` for direct API validation.
 - `selenium` for required browser automation against Chrome.
 - `pyproject.toml` for modern Python packaging and editable installs.
-- Optional `ruff` configuration is included for local linting, but it is not required to execute tests.
+- `ruff` for linting, import sorting, formatting checks, and Google-style docstring enforcement.
+- `detect-secrets` for credential leak prevention.
+- `pre-commit` for local commit-time quality gates.
 
 ## Known Specification Ambiguity
 

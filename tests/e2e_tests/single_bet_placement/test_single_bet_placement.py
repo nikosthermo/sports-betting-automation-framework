@@ -8,7 +8,9 @@ from sports_betting.ui.services.betting_ui_service import BettingUiService
 
 
 @pytest.mark.e2e
-def test_single_home_bet_receipt_matches_selected_bet(driver, sporty_settings, api_service, reset_balance):
+def test_single_home_bet_receipt_matches_selected_bet(
+    driver, sporty_settings, api_service, reset_balance
+):
     """Chosen because it covers the critical revenue journey from selection to receipt."""
     match = api_service.first_match()
     ui = BettingUiService(driver, timeout=sporty_settings.timeout_seconds)

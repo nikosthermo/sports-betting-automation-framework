@@ -14,11 +14,13 @@ from sports_betting.ui.driver_factory import create_chrome_driver
 
 @pytest.fixture(scope="session")
 def sporty_settings():
+    """Return shared runtime settings."""
     return settings
 
 
 @pytest.fixture
 def api_client(sporty_settings):
+    """Create an authenticated API client or skip when config is missing."""
     try:
         base_url, user_id = sporty_settings.require_runtime_config()
     except RuntimeError as exc:
@@ -34,17 +36,20 @@ def api_client(sporty_settings):
 
 @pytest.fixture
 def api_service(api_client):
+    """Create the API service used by tests."""
     return BettingApiService(api_client)
 
 
 @pytest.fixture
 def reset_balance(api_service):
+    """Reset balance before tests that mutate wallet state."""
     api_service.reset_balance()
     return api_service.current_balance()
 
 
 @pytest.fixture
 def driver(sporty_settings):
+    """Create a Chrome browser or skip when browser prerequisites are missing."""
     try:
         sporty_settings.require_runtime_config()
     except RuntimeError as exc:
@@ -59,6 +64,7 @@ def driver(sporty_settings):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
+    """Attach a screenshot path to failed UI test reports."""
     outcome = yield
     report = outcome.get_result()
     if report.when != "call" or not report.failed:

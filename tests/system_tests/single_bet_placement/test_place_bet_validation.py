@@ -8,9 +8,7 @@ def test_place_bet_rejects_stake_with_more_than_two_decimal_places(api_client, a
     """Chosen because stake precision protects money movement and must be enforced by the API."""
     match = api_service.first_match()
 
-    response = api_client.place_bet(
-        {"matchId": match["id"], "selection": "HOME", "stake": 10.999}
-    )
+    response = api_client.place_bet({"matchId": match["id"], "selection": "HOME", "stake": 10.999})
 
     assert response.status_code == 422
     body = response.json()

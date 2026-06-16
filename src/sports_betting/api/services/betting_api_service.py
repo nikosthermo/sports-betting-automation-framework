@@ -13,16 +13,19 @@ class BettingApiService:
         self.client = client
 
     def reset_balance(self) -> dict[str, Any]:
+        """Reset balance and return the API response body."""
         response = self.client.reset_balance()
         response.raise_for_status()
         return response.json()
 
     def current_balance(self) -> Decimal:
+        """Return the persisted balance as a Decimal."""
         response = self.client.get_balance()
         response.raise_for_status()
         return Decimal(str(response.json()["balance"]))
 
     def first_match(self) -> dict[str, Any]:
+        """Return the first upcoming match from the catalog."""
         response = self.client.get_matches()
         response.raise_for_status()
         matches = response.json()
@@ -31,6 +34,7 @@ class BettingApiService:
         return matches[0]
 
     def place_home_bet(self, match_id: str, stake: Decimal) -> dict[str, Any]:
+        """Place a HOME selection bet for the provided match."""
         response = self.client.place_bet(
             {"matchId": match_id, "selection": "HOME", "stake": float(stake)}
         )

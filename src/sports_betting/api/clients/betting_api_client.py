@@ -21,15 +21,19 @@ class BettingApiClient:
         )
 
     def get_matches(self) -> requests.Response:
+        """Get the upcoming match catalog."""
         return self.session.get(f"{self.base_url}/api/matches", timeout=self.timeout)
 
     def get_balance(self) -> requests.Response:
+        """Get the current user balance."""
         return self.session.get(f"{self.base_url}/api/balance", timeout=self.timeout)
 
     def reset_balance(self) -> requests.Response:
+        """Reset the current user's balance to the configured initial state."""
         return self.session.post(f"{self.base_url}/api/reset-balance", timeout=self.timeout)
 
     def place_bet(self, payload: dict[str, Any]) -> requests.Response:
+        """Submit a single bet placement request."""
         return self.session.post(
             f"{self.base_url}/api/place-bet",
             json=payload,
@@ -37,4 +41,5 @@ class BettingApiClient:
         )
 
     def close(self) -> None:
+        """Close the underlying HTTP session."""
         self.session.close()

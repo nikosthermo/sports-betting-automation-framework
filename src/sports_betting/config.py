@@ -3,9 +3,15 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
+from dotenv import load_dotenv
+
+load_dotenv(override=False)
+
 
 @dataclass(frozen=True)
 class Settings:
+    """Runtime settings loaded from environment variables."""
+
     base_url: str | None = os.getenv("SPORTY_BASE_URL")
     user_id: str | None = os.getenv("SPORTY_USER_ID")
     headless: bool = os.getenv("SPORTY_HEADLESS", "true").lower() in {"1", "true", "yes"}
@@ -13,11 +19,13 @@ class Settings:
 
     @property
     def app_url(self) -> str:
+        """Return the authenticated application URL for browser tests."""
         base_url = self.require_base_url()
         user_id = self.require_user_id()
         return f"{base_url}/?user-id={user_id}"
 
     def require_base_url(self) -> str:
+        """Return the configured base URL or raise a clear setup error."""
         if not self.base_url:
             raise RuntimeError(
                 "SPORTY_BASE_URL is required. "
@@ -26,6 +34,7 @@ class Settings:
         return self.base_url.rstrip("/")
 
     def require_user_id(self) -> str:
+        """Return the configured user id or raise a clear setup error."""
         if not self.user_id:
             raise RuntimeError(
                 "SPORTY_USER_ID is required for authenticated API/UI flows. "
@@ -34,6 +43,7 @@ class Settings:
         return self.user_id
 
     def require_runtime_config(self) -> tuple[str, str]:
+        """Return the required URL and user id settings as a tuple."""
         return self.require_base_url(), self.require_user_id()
 
 

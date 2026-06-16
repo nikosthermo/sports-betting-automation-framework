@@ -5,6 +5,7 @@ from selenium.webdriver.chrome.options import Options
 
 
 def create_chrome_driver(headless: bool = True) -> webdriver.Chrome:
+    """Create a Chrome WebDriver configured for desktop test execution."""
     options = Options()
     if headless:
         options.add_argument("--headless=new")

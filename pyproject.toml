@@ -10,13 +10,16 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
   "pytest>=8.2,<9",
+  "python-dotenv>=1.0",
   "requests>=2.32",
   "selenium>=4.21",
 ]
 
 [project.optional-dependencies]
 dev = [
-  "ruff>=0.5",
+  "detect-secrets>=1.5",
+  "pre-commit>=4.0",
+  "ruff>=0.8",
 ]
 
 [tool.setuptools.packages.find]
@@ -27,5 +30,13 @@ line-length = 100
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "PL"]
-ignore = ["PLR2004"]
+select = ["E", "F", "I", "B", "UP", "PL", "D"]
+ignore = [
+  "D100",
+  "D104",
+  "D107",
+  "PLR2004",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
