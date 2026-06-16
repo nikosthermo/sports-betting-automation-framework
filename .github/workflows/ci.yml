@@ -1,0 +1,115 @@
+name: QA Automation CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  ALLURE_RESULTS_DIR: allure-results
+  ALLURE_REPORT_DIR: allure-report
+  SPORTY_BASE_URL: ${{ vars.SPORTY_BASE_URL }}
+  SPORTY_USER_ID: ${{ secrets.SPORTY_USER_ID }}
+  SPORTY_HEADLESS: "true"
+  SPORTY_TIMEOUT_SECONDS: "12"
+
+jobs:
+  quality-and-tests:
+    name: Quality gates and tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project and development dependencies
+        run: make install-dev
+
+      - name: Verify CI runtime configuration
+        run: |
+          test -n "$SPORTY_BASE_URL" || (echo "SPORTY_BASE_URL repository variable is missing" && exit 1)
+          test -n "$SPORTY_USER_ID" || (echo "SPORTY_USER_ID repository secret is missing" && exit 1)
+
+      - name: Show Chrome version
+        run: google-chrome --version
+
+      - name: Run static quality gates
+        run: |
+          make lint
+          make format-check
+          make credential-scan
+
+      - name: Run API tests
+        run: make test-api
+
+      - name: Run UI E2E tests headless
+        id: e2e
+        continue-on-error: true
+        run: make test-e2e
+
+      - name: Install Allure command-line tool
+        if: always()
+        run: npm install -g allure-commandline
+
+      - name: Generate Allure HTML report
+        if: always()
+        run: allure generate "$ALLURE_RESULTS_DIR" --clean -o "$ALLURE_REPORT_DIR"
+
+      - name: Upload Allure raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: ${{ env.ALLURE_RESULTS_DIR }}
+          if-no-files-found: error
+
+      - name: Upload Allure report as workflow artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: ${{ env.ALLURE_REPORT_DIR }}
+          if-no-files-found: error
+
+      - name: Upload GitHub Pages artifact
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.ALLURE_REPORT_DIR }}
+
+      - name: Mark workflow failed when E2E failed
+        if: steps.e2e.outcome == 'failure'
+        run: |
+          echo "UI E2E tests failed. Review the published Allure report for details."
+          exit 1
+
+  deploy-allure-report:
+    name: Publish Allure report to GitHub Pages
+    needs: quality-and-tests
+    if: always() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

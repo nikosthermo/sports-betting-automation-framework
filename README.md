@@ -191,6 +191,34 @@ The browser E2E is intentionally kept outside `make quality` because it exercise
 make test-e2e
 ```
 
+## GitHub Actions CI
+
+The repository includes a CI workflow at `.github/workflows/ci.yml`.
+
+Configure these repository settings before running CI:
+
+1. Add repository variable `SPORTY_BASE_URL`.
+2. Add repository secret `SPORTY_USER_ID`.
+3. Enable GitHub Pages with source set to `GitHub Actions`.
+
+The workflow runs on pushes to `main`, pull requests targeting `main`, and manual dispatch.
+
+CI steps:
+
+- Checks out the repository.
+- Sets up Python 3.11.
+- Installs the project with development dependencies.
+- Loads runtime configuration from GitHub repository variables and secrets.
+- Verifies Chrome is available.
+- Runs Ruff linting, formatting checks, Google-style docstring checks, and credential scanning.
+- Runs API tests.
+- Runs UI E2E tests in headless Chrome.
+- Generates Allure raw results and an HTML report.
+- Uploads Allure artifacts to the workflow run.
+- Publishes the Allure HTML report to GitHub Pages for `main` branch runs.
+
+The UI E2E step is allowed to complete report generation even when it finds the documented product defect. The workflow marks the run failed after publishing artifacts so reviewers can inspect the Allure report.
+
 ## Tooling Choices
 
 - `pytest` for concise fixtures, markers, and readable assertions.
