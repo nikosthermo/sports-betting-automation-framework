@@ -1,119 +1,130 @@
 # Test Plan: Single Bet Placement
 
-## SBP-001: Place a Valid Single Bet
+## SBP-001: Place a Valid Single Bet and Verify Confirmation Data
 
 Priority: Critical
 
-Risk Rationale: This is the primary revenue-generating journey. Incorrect selection, stake, payout, or receipt data can directly affect user trust and financial correctness.
+Risk Rationale: This is the core revenue journey. Any mismatch between selected event, stake, odds, payout, balance, or currency can mislead the customer and create financial reconciliation issues.
 
 Steps:
 
 1. Open the app with a valid `user-id`.
-2. Confirm balance is shown as EUR.
-3. Select the HOME odds for the first upcoming match.
+2. Confirm the header and bet slip show the current EUR balance.
+3. Select the HOME odds for an upcoming match.
 4. Enter stake `10.00`.
-5. Verify potential payout equals `stake * selected odds`.
-6. Click `Place Bet`.
-7. Verify success receipt.
+5. Confirm the displayed potential payout equals `stake * selected odds`.
+6. Place the bet.
+7. Compare the success receipt against the selected match, selection, stake, odds, payout, currency, and API response.
+8. Close the receipt and confirm the main flow is reset.
 
 Expected Result:
 
-- Button enters `Placing...` state.
-- Balance is reduced by `€10.00`.
-- Receipt shows bet id, correct home-vs-away match order, HOME selection, stake, odds at placement, payout, and timestamp.
-- Closing the receipt returns to the main flow with no active selection.
+- `Place Bet` enters a loading state and resolves to one final outcome.
+- Receipt preserves `homeTeam vs awayTeam` ordering.
+- Receipt uses the odds and payout returned by the backend.
+- Currency is consistently EUR across UI and API contract.
+- Balance is deducted by the stake and is refreshed everywhere it is displayed.
+- Closing the receipt clears the active selection and stake.
 
-## SBP-002: API Rejects Invalid Stake Precision
+## SBP-002: Enforce Balance Across Repeated and Concurrent Bet Placement
 
 Priority: Critical
 
-Risk Rationale: Money values must be deterministic. Accepting more than two decimals can create rounding and reconciliation defects.
+Risk Rationale: Balance enforcement protects the business from users placing bets without available funds. UI-only validation is insufficient because stale UI state, duplicate submits, concurrent requests, or direct API calls can bypass it.
 
 Steps:
 
-1. Fetch an existing match from `/api/matches`.
-2. POST `/api/place-bet` with valid `matchId`, selection `HOME`, and stake `10.999`.
+1. Reset the user's balance.
+2. Place a valid bet that deducts part of the balance.
+3. Without refreshing the page, attempt additional bets that cumulatively exceed the remaining balance.
+4. Repeat the same risk through direct API calls or rapid placement attempts if possible.
+5. Refresh the page and check the persisted balance.
 
 Expected Result:
 
-- API returns `422`.
-- Response identifies invalid stake precision.
-- No balance is deducted.
+- Backend rejects any bet that exceeds the user's actual persisted balance.
+- User balance never becomes negative.
+- UI refreshes balance immediately after each successful bet.
+- Duplicate/concurrent placement is blocked or returns a clear error such as `409 bet already in progress`.
 
-## SBP-003: Stake Cannot Exceed Available Balance
+## SBP-003: Default Match List Shows Upcoming Pre-Match Events Only
 
 Priority: High
 
-Risk Rationale: Allowing users to stake beyond balance creates financial exposure and breaks wallet integrity.
+Risk Rationale: The feature scope is upcoming football pre-match betting. Showing past events first can lead users to select unavailable or misleading markets, and it conflicts with the product expectation of a betting page focused on currently available opportunities.
 
 Steps:
 
-1. Reset balance.
-2. Select any odds.
-3. Enter a stake greater than the displayed balance.
-4. Attempt to place the bet.
+1. Open the app with a valid `user-id`.
+2. Observe the default `Upcoming Football Matches` list before applying filters.
+3. Check the kickoff dates and ordering of the first visible events.
+4. Apply today's date or a future date filter and compare the visible results.
 
 Expected Result:
 
-- UI blocks placement.
-- User sees `Insufficient balance`.
-- API also rejects an equivalent direct request.
+- Default view shows upcoming/pre-match football events only.
+- Past/completed events are not shown in the primary betting list by default.
+- If historical events are intentionally supported, they are separated into a clearly labeled archive or past-results view.
+- Events are ordered in a way that surfaces the most relevant upcoming betting opportunities first.
 
-## SBP-004: Single Bet Selection Replacement
+## SBP-004: Stake Validation Boundaries in UI and API
 
 Priority: High
 
-Risk Rationale: The feature supports only one active bet. Multiple active selections would create accidental multi-bets, which are explicitly out of scope.
+Risk Rationale: Stake validation is money-handling validation. Boundary defects can cause rejected valid bets, accepted invalid bets, rounding discrepancies, or inconsistent client/server behavior.
+
+Steps:
+
+1. Select a valid match outcome.
+2. Try stake values: blank, non-numeric text, `0.99`, `1.00`, `100.00`, `100.01`, and `10.999`.
+3. Repeat representative invalid values directly through `/api/place-bet`.
+
+Expected Result:
+
+- UI blocks invalid stake values with clear messages.
+- API rejects invalid stake values with appropriate `422` validation errors.
+- Valid boundary values are accepted according to the clarified minimum and maximum rules.
+- More than two decimal places is rejected by both UI and API.
+
+## SBP-005: Single Selection Replacement and Removal
+
+Priority: Medium
+
+Risk Rationale: The feature supports single bets only. Multiple active selections would create accidental accumulator behavior, which is explicitly out of scope.
 
 Steps:
 
 1. Select HOME odds for one match.
-2. Select AWAY odds for another match.
+2. Select DRAW or AWAY odds for a different match.
 3. Inspect the bet slip.
+4. Use per-selection remove.
+5. Select another outcome and use `Remove All`.
 
 Expected Result:
 
-- The second selection replaces the first.
+- New odds selection replaces the previous selection.
 - Bet slip count remains `1`.
-- Only the latest selected match and outcome are shown.
+- Per-selection remove clears only the active selection.
+- `Remove All` clears selection and stake.
+- No multi-bet or accumulator state is possible.
 
-## SBP-005: Stake Boundary Validation
-
-Priority: Medium
-
-Risk Rationale: Boundary defects are common in payment-like inputs and can produce inconsistent UI/API behavior.
-
-Steps:
-
-1. Select any odds.
-2. Try stake `0.99`.
-3. Try stake `1.00`.
-4. Try stake `100.00`.
-5. Try stake `100.01`.
-
-Expected Result:
-
-- `0.99` is rejected with minimum stake messaging.
-- `1.00` is accepted if the clarified minimum is `€1.00`.
-- `100.00` is accepted.
-- `100.01` is rejected with maximum stake messaging.
-
-## SBP-006: Odds Filter Invalid and Inclusive Ranges
+## SBP-006: Date and Odds Filters Respect Inclusive Boundaries
 
 Priority: Medium
 
-Risk Rationale: Filtering affects discoverability and selection accuracy. Invalid range handling must be clear to avoid hiding valid betting options.
+Risk Rationale: Filters control event discoverability. Incorrect filter boundaries can hide valid markets or show unavailable markets, leading to user confusion and missed betting opportunities.
 
 Steps:
 
-1. Open the odds filter.
-2. Apply a valid min/max range matching known odds.
-3. Confirm matches with odds inside the range are shown.
-4. Enter a min value greater than max.
-5. Apply the invalid range.
+1. Apply a single-day date filter.
+2. Apply a date range filter.
+3. Apply an odds range where min/max exactly match visible odds.
+4. Enter an invalid odds range where min is greater than max.
+5. Reset filters.
 
 Expected Result:
 
-- Valid ranges are inclusive.
+- Date filters are inclusive.
+- Odds filters are inclusive.
 - Invalid ranges are rejected with clear feedback.
-- Existing results are not silently corrupted.
+- Reset restores the default upcoming/pre-match event view.
