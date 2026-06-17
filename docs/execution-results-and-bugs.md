@@ -176,7 +176,7 @@ Business Impact:
 
 Evidence:
 
-- Screenshot: `evidence/screenshots/bug-004-currency-usd.png`
+- Screenshot: `evidence/screenshots/bug-004-bet-placement-response-currency-usd.png`
 
 ```json
 {

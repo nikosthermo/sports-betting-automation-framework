@@ -31,7 +31,12 @@ sports-betting-automation-framework/
 │   ├── execution-results-and-bugs.md
 │   └── strategy-and-recommendations.md
 ├── evidence/screenshots/
-│   └── bug-001-receipt-match-order.png
+│   ├── bug-001-negative-balance.png
+│   ├── bug-002-potential-payout-hardcoded-as-stake-x2.png
+│   ├── bug-003-balance-does-not-refresh-after-bet-placement.png
+│   ├── bug-004-bet-placement-response-currency-usd.png
+│   ├── bug-005-bet-receipt-match-order.png
+│   └── bug-006-upcoming-shows-past-events.png
 ├── src/sports_betting/
 │   ├── config.py
 │   ├── api/
@@ -251,7 +256,9 @@ Expected: Manchester Utd vs Chelsea
 Actual:   Chelsea vs Manchester Utd
 ```
 
-This is documented in `docs/execution-results-and-bugs.md` as `BUG-001`, with curated evidence in `evidence/screenshots/bug-001-receipt-match-order.png`.
+This is documented in `docs/execution-results-and-bugs.md` as `BUG-005`, with curated evidence in `evidence/screenshots/bug-005-bet-receipt-match-order.png`.
+
+The most critical documented defect is `BUG-001`, where repeated placement without refresh can drive the user's balance negative.
 
 ## GitHub Actions CI
 
@@ -280,6 +287,12 @@ CI steps:
 - Publishes the Allure HTML report to GitHub Pages for `main` branch runs.
 
 The UI E2E step is allowed to complete report generation even when it finds the documented product defect. The workflow marks the run failed after publishing artifacts so reviewers can inspect the Allure report.
+
+For documentation-only commits where you intentionally do not want to run the live test pipeline, include a standard skip token in the commit message:
+
+```bash
+git commit -m "docs: refine QA documentation [skip ci]"
+```
 
 ## Tooling Choices
 
