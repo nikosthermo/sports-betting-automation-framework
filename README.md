@@ -311,5 +311,6 @@ The assignment text contains conflicting minimum stake references:
 - Business rules: stake minimum is `€1.00`.
 - Validation table: minimum is `€1.01`.
 - UI expected copy: `Minimum stake is €1.00`.
+- OpenAPI schema defines minimum as `1`.
 
-The automation currently follows the API documentation and observed frontend copy around `€1.00`; this should be clarified with the product owner before expanding coverage.
+The current automated tests avoid relying on this ambiguous boundary. Before adding automated minimum-stake boundary coverage, this should be clarified with the product owner.
