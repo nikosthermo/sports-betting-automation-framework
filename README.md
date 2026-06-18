@@ -1,7 +1,5 @@
 # Sports Betting Automation Framework
 
-[![QA Automation CI](https://github.com/nikosthermo/sports-betting-automation-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/nikosthermo/sports-betting-automation-framework/actions/workflows/ci.yml)
-
 Scoped QA submission for Sporty's Single Bet Placement assignment.
 
 The repository combines manual QA deliverables with a small Python automation framework using Selenium WebDriver, `requests`, Chrome, and Pytest.
@@ -125,11 +123,13 @@ For this assignment, use the values provided in the assignment instructions for 
 
 ## Running Tests
 
-Run everything:
+Run all tests:
 
 ```bash
 python -m pytest
 ```
+
+This includes the live browser E2E test, which currently exposes documented product defects.
 
 Run API tests only:
 
@@ -245,20 +245,19 @@ The browser E2E is intentionally kept outside `make quality` because it exercise
 make test-e2e
 ```
 
-## Known E2E Product Defect
+## Known E2E Product Defects
 
-The current UI E2E test is expected to fail against the live application because the success receipt reverses match order.
+The current UI E2E test is expected to fail against the live application because it exposes documented product defects in the critical bet placement journey.
 
-Example:
+Current examples:
 
 ```text
-Expected: Manchester Utd vs Chelsea
-Actual:   Chelsea vs Manchester Utd
+receipt match: expected 'Manchester Utd vs Chelsea', got 'Chelsea vs Manchester Utd'
+receipt payout: expected '€24.50', got '€20.00'
+header balance after placement: expected to contain '€110.00', got 'Balance: €120.00'
 ```
 
-This is documented in `docs/execution-results-and-bugs.md` as `BUG-005`, with curated evidence in `evidence/screenshots/bug-005-bet-receipt-match-order.png`.
-
-The most critical documented defect is `BUG-001`, where repeated placement without refresh can drive the user's balance negative.
+These are documented in `docs/execution-results-and-bugs.md` as `BUG-002`, `BUG-003`, and `BUG-005`. The most critical documented defect is `BUG-001`, where repeated placement without refresh can drive the user's balance negative.
 
 ## GitHub Actions CI
 
