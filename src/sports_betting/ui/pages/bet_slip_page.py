@@ -39,6 +39,12 @@ class BetSlipPage:
             EC.visibility_of_element_located((By.ID, "modal-success-match"))
         ).text
 
+    def receipt_bet_id_text(self) -> str:
+        """Return the bet id text from the success receipt."""
+        return self.wait.until(
+            EC.visibility_of_element_located((By.ID, "modal-success-bet-id"))
+        ).text
+
     def receipt_stake_text(self) -> str:
         """Return the stake text from the success receipt."""
         return self.wait.until(
@@ -53,4 +59,10 @@ class BetSlipPage:
         """Return the payout text from the success receipt."""
         return self.wait.until(
             EC.visibility_of_element_located((By.ID, "modal-success-payout"))
+        ).text
+
+    def receipt_placed_at_text(self) -> str:
+        """Return the placement timestamp text from the success receipt."""
+        return self.wait.until(
+            EC.visibility_of_element_located((By.ID, "modal-success-placed-at"))
         ).text
