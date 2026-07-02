@@ -4,42 +4,27 @@ from typing import Any
 
 import requests
 
+from sports_betting.api.clients.base_api_client import BaseApiClient
 
-class BettingApiClient:
+
+class BettingApiClient(BaseApiClient):
     """Thin HTTP wrapper around the betting API."""
 
     def __init__(self, base_url: str, user_id: str, timeout: int = 12) -> None:
-        self.base_url = base_url.rstrip("/")
-        self.timeout = timeout
-        self.session = requests.Session()
-        self.session.headers.update(
-            {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "x-user-id": user_id,
-            }
-        )
+        super().__init__(base_url=base_url, timeout=timeout, headers={"x-user-id": user_id})
 
     def get_matches(self) -> requests.Response:
         """Get the upcoming match catalog."""
-        return self.session.get(f"{self.base_url}/api/matches", timeout=self.timeout)
+        return self.get("/api/matches")
 
     def get_balance(self) -> requests.Response:
         """Get the current user balance."""
-        return self.session.get(f"{self.base_url}/api/balance", timeout=self.timeout)
+        return self.get("/api/balance")
 
     def reset_balance(self) -> requests.Response:
         """Reset the current user's balance to the configured initial state."""
-        return self.session.post(f"{self.base_url}/api/reset-balance", timeout=self.timeout)
+        return self.post("/api/reset-balance")
 
     def place_bet(self, payload: dict[str, Any]) -> requests.Response:
         """Submit a single bet placement request."""
-        return self.session.post(
-            f"{self.base_url}/api/place-bet",
-            json=payload,
-            timeout=self.timeout,
-        )
-
-    def close(self) -> None:
-        """Close the underlying HTTP session."""
-        self.session.close()
+        return self.post("/api/place-bet", json=payload)
